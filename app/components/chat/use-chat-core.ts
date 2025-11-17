@@ -131,15 +131,20 @@ export function useChatCore({
     }
   }, [prompt, setInput])
 
-  // Reset messages when navigating from a chat to home
-  if (
-    prevChatIdRef.current !== null &&
-    chatId === null &&
-    messages.length > 0
-  ) {
-    setMessages([])
-  }
-  prevChatIdRef.current = chatId
+  // Reset messages when navigating from a chat to home.
+  // Do this in an effect so we don't call setState during render.
+  useEffect(() => {
+    if (
+      prevChatIdRef.current !== null &&
+      chatId === null &&
+      messages.length > 0
+    ) {
+      setMessages([])
+    }
+
+    // Track previous chat id for the next render
+    prevChatIdRef.current = chatId
+  }, [chatId, messages.length, setMessages])
 
   // Submit action
   const submit = useCallback(async () => {
